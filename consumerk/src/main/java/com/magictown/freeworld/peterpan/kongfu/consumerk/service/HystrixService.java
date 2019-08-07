@@ -59,7 +59,7 @@ public class HystrixService {
     }
 
     @Cacheable("cacheGetTeacher")
-    //@CacheEvict("cacheGetTeacher")
+    //@CacheEvict("cacheGetTeacher") non idempotent operation use this like insert delete update
     public List<String> getTeacher() {
         ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
         StringBuilder requestContext = new StringBuilder(16);
