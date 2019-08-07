@@ -7,6 +7,7 @@ package com.magictown.freeworld.peterpan.kongfu.consumerk.service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -103,6 +104,34 @@ public class HystrixService {
         List<String> result = responseEntity.getBody();
 
         return result;
+    }
+
+    @HystrixCommand(fallbackMethod = "breakerFallback",commandProperties = {
+            @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD,value = "10"),
+            @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE,value = "50"),
+            @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_SLEEP_WINDOW_IN_MILLISECONDS,value = "5000")
+    })
+    public String breakerMethod() {
+
+        ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
+        StringBuilder requestContext = new StringBuilder(16);
+        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getKongFu");
+        System.out.println(" now you are consume " + requestContext.toString());
+
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<String> typeReference = new ParameterizedTypeReference<String>() {
+        };
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(requestContext.toString(), HttpMethod.GET,null,typeReference);
+
+        String result = responseEntity.getBody();
+
+        return result;
+    }
+
+    private String breakerFallback() {
+
+        return "now in breakerFallback Method ....";
     }
 
 }

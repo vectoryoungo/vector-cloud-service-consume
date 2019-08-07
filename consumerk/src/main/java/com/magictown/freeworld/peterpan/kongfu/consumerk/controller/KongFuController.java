@@ -78,5 +78,12 @@ public class KongFuController {
 
         return " no data ";
     }
+
+    @GetMapping(value = "/breakerMethod")
+    public String getBreakerMethod() {
+
+        return hystrixService.breakerMethod();
+    }
+
 }
 
