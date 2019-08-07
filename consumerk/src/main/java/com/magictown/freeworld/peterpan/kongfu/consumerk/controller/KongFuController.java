@@ -4,6 +4,7 @@
  **/
 package com.magictown.freeworld.peterpan.kongfu.consumerk.controller;
 
+import com.magictown.freeworld.peterpan.kongfu.consumerk.service.HystrixService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -14,11 +15,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @RestController
 public class KongFuController {
 
     @Autowired
     private LoadBalancerClient loadBalancerClient;
+    @Autowired
+    private HystrixService hystrixService;
 
 
     @GetMapping(value = "/load")
@@ -40,5 +45,11 @@ public class KongFuController {
 
     }
 
+    @GetMapping(value = "/downgrade")
+    public List<String> downgrade() {
+        List<String> response = hystrixService.downgrade();
+
+        return response;
+    }
 }
 
