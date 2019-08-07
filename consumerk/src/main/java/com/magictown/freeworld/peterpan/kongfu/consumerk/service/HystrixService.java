@@ -4,7 +4,9 @@
  **/
 package com.magictown.freeworld.peterpan.kongfu.consumerk.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCollapser;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * add @CacheConfig instruct this class may be use cache
@@ -61,6 +64,31 @@ public class HystrixService {
     @Cacheable("cacheGetTeacher")
     //@CacheEvict("cacheGetTeacher") non idempotent operation use this like insert delete update
     public List<String> getTeacher() {
+        ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
+        StringBuilder requestContext = new StringBuilder(16);
+        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getTeacher");
+        System.out.println(" now you are consume " + requestContext.toString());
+
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<List<String>> typeReference = new ParameterizedTypeReference<List<String>>() {
+        };
+
+        ResponseEntity<List<String>> responseEntity = restTemplate.exchange(requestContext.toString(), HttpMethod.GET,null,typeReference);
+
+        List<String> result = responseEntity.getBody();
+
+        return result;
+    }
+
+    @HystrixCollapser(batchMethod = "mergeRequest",scope = com.netflix.hystrix.HystrixCollapser.Scope.GLOBAL,
+            collapserProperties = {@HystrixProperty(name = "timerDelayInMilliseconds",value = "10"),
+                                   @HystrixProperty(name = "maxRequestsInBatch",value = "50")})
+    public Future<String> mergeRequestMethd(Integer id){
+        return null;
+    }
+
+    @HystrixCommand
+    public List<String> mergeRequest(List<Integer> series) {
         ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
         StringBuilder requestContext = new StringBuilder(16);
         requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getTeacher");

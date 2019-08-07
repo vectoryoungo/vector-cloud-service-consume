@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @RestController
 public class KongFuController {
@@ -57,6 +60,23 @@ public class KongFuController {
         List<String> response = hystrixService.getTeacher();
 
         return response;
+    }
+
+    @GetMapping(value = "/requestMerge")
+    public String getMergeRequestTeacher() {
+        Random random = new Random(1000);
+        Future<String> teacher= hystrixService.mergeRequestMethd(random.nextInt());
+
+        try {
+            Thread.sleep(100);
+            return teacher.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return " no data ";
     }
 }
 
