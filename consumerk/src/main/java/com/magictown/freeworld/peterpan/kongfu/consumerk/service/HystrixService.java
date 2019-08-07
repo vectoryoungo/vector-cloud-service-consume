@@ -134,5 +134,35 @@ public class HystrixService {
         return "now in breakerFallback Method ....";
     }
 
+    @HystrixCommand(groupKey = "vector-thread-quarantine",commandKey = "vectorThreadQuarantine",threadPoolKey = "vector-thread-quarantine",
+                    threadPoolProperties = {
+                            @HystrixProperty(name="coreSize" ,value = "5"),
+                            @HystrixProperty(name="maxQueueSize" ,value = "10"),
+                            @HystrixProperty(name="keepAliveTimeMinutes" ,value = "2"),
+                            @HystrixProperty(name="queueSizeRejectionThreshold" ,value = "15")
+                    },fallbackMethod = "threadQuarantineFallback")
+    public List<String> getThreadTeacher(){
+        ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
+        StringBuilder requestContext = new StringBuilder(16);
+        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getSkill");
+        System.out.println(" now you are consume " + requestContext.toString());
+
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<List<String>> typeReference = new ParameterizedTypeReference<List<String>>() {
+        };
+
+        ResponseEntity<List<String>> responseEntity = restTemplate.exchange(requestContext.toString(), HttpMethod.GET,null,typeReference);
+
+        List<String> responseEntityBody = responseEntity.getBody();
+
+        return responseEntityBody;
+    }
+
+    private List<String> threadQuarantineFallback() {
+        List<String> response = new ArrayList<>(2);
+        response.add("threadQuarantineFallback method....");
+        return response;
+    }
+
 }
 

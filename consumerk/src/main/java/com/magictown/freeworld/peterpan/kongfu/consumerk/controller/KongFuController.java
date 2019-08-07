@@ -85,5 +85,10 @@ public class KongFuController {
         return hystrixService.breakerMethod();
     }
 
+    @GetMapping(value = "/threadQuarantine")
+    public List<String> getThreadTeacher() {
+        return hystrixService.getThreadTeacher();
+    }
+
 }
 
