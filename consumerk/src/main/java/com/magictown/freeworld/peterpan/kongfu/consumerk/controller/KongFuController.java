@@ -51,5 +51,12 @@ public class KongFuController {
 
         return response;
     }
+
+    @GetMapping(value = "/cacheRequest")
+    public List<String> cacheRequest() {
+        List<String> response = hystrixService.getTeacher();
+
+        return response;
+    }
 }
 
