@@ -90,5 +90,10 @@ public class KongFuController {
         return hystrixService.getThreadTeacher();
     }
 
+    @GetMapping(value = "/getAnimals")
+    public List<String> getAnimals() {
+        return hystrixService.getAnimals();
+    }
+
 }
 

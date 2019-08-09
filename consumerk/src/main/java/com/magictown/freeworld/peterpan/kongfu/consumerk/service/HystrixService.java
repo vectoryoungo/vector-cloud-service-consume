@@ -164,5 +164,34 @@ public class HystrixService {
         return response;
     }
 
+
+    @HystrixCommand(fallbackMethod = "semaphoreQuarantineFallback",commandProperties = {
+            @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_STRATEGY,value = "SEMAPHORE"),
+            @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS,value = "100")
+    })
+    public List<String> getAnimals() {
+
+        ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
+        StringBuilder requestContext = new StringBuilder(16);
+        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getAnimals");
+        System.out.println(" now you are consume " + requestContext.toString());
+
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<List<String>> typeReference = new ParameterizedTypeReference<List<String>>() {
+        };
+
+        ResponseEntity<List<String>> responseEntity = restTemplate.exchange(requestContext.toString(), HttpMethod.GET,null,typeReference);
+
+        List<String> responseEntityBody = responseEntity.getBody();
+
+        return responseEntityBody;
+    }
+
+    private List<String> semaphoreQuarantineFallback() {
+        List<String> response = new ArrayList<>(8);
+        response.add("NoData");
+
+        return response;
+    }
 }
 
