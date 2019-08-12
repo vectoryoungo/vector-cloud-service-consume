@@ -4,6 +4,8 @@
  **/
 package com.magictown.freeworld.peterpan.kongfu.consumerk.controller;
 
+import com.magictown.freeworld.peterpan.kongfu.consumerk.message.Broadcaster;
+import com.magictown.freeworld.peterpan.kongfu.consumerk.message.LogMessage;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.service.HystrixService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +30,8 @@ public class KongFuController {
     private LoadBalancerClient loadBalancerClient;
     @Autowired
     private HystrixService hystrixService;
+    @Autowired
+    private Broadcaster broadcaster;
 
 
     @GetMapping(value = "/load")
@@ -93,6 +98,18 @@ public class KongFuController {
     @GetMapping(value = "/getAnimals")
     public List<String> getAnimals() {
         return hystrixService.getAnimals();
+    }
+
+    @GetMapping(value = "/sendMessage")
+    public void send() {
+        LogMessage logMessage = new LogMessage();
+        logMessage.setCreateTime(new Date());
+        logMessage.setId(1111L);
+        logMessage.setLogLevel("Error");
+        logMessage.setMsg("This is free message from Arbitrary china because empire modify the constitution");
+        logMessage.setServiceType("9");
+        logMessage.setUserId(8888L);
+        broadcaster.send(logMessage);
     }
 
 }
