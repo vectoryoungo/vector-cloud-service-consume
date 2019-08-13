@@ -25,5 +25,13 @@ public class Broadcaster {
     public void send(LogMessage logMessage) {
         amqpTemplate.convertAndSend(exchange,routingKey,logMessage);
     }
+
+    public void sendWithManyString(String message) {
+        amqpTemplate.convertAndSend("log.topic","order.log.debug","order.log.debug......" + message);
+        amqpTemplate.convertAndSend("log.topic","order.log.info","order.info.debug......" + message);
+        amqpTemplate.convertAndSend("log.topic","order.log.warning","order.log.warning......" + message);
+        amqpTemplate.convertAndSend("log.topic","order.log.error","order.log.error......" + message);
+
+    }
 }
 

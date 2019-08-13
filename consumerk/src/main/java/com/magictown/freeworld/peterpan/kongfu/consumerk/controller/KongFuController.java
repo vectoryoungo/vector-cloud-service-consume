@@ -112,5 +112,11 @@ public class KongFuController {
         broadcaster.send(logMessage);
     }
 
+    @GetMapping(value = "/sendMany")
+    public void sendMany() {
+        String message = "This is arbitrary message send from arbitrary china ";
+        broadcaster.sendWithManyString(message);
+    }
+
 }
 
