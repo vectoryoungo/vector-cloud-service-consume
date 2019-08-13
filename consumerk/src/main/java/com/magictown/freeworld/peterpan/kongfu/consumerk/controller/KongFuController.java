@@ -118,5 +118,11 @@ public class KongFuController {
         broadcaster.sendWithManyString(message);
     }
 
+    @GetMapping(value = "/sendFanout")
+    public void sendFanout() {
+        String message = "China President is Fucking Stupid Pig !!! China communist party is a group stupid pig ";
+        broadcaster.sendWithFanout(message);
+    }
+
 }
 

@@ -33,5 +33,9 @@ public class Broadcaster {
         amqpTemplate.convertAndSend("log.topic","order.log.error","order.log.error......" + message);
 
     }
+
+    public void sendWithFanout(String message) {
+        amqpTemplate.convertAndSend("fanout","",message);
+    }
 }
 
