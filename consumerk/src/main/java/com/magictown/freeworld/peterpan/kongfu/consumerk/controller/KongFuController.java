@@ -8,6 +8,7 @@ import com.magictown.freeworld.peterpan.kongfu.consumerk.message.Broadcaster;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.message.LogMessage;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.service.HystrixService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -32,13 +33,17 @@ public class KongFuController {
     private HystrixService hystrixService;
     @Autowired
     private Broadcaster broadcaster;
+    @Value("${app.zuul.serviceID}")
+    private String zuulServiceID;
+    @Value("${app.vector-cloud-service.serviceID}")
+    private String remoteServiceID;
 
 
     @GetMapping(value = "/load")
     public String loadKongFu() {
-        ServiceInstance serviceInstance = loadBalancerClient.choose("vector-cloud-service");
+        ServiceInstance serviceInstance = loadBalancerClient.choose(zuulServiceID);
         StringBuilder requestContext = new StringBuilder(16);
-        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("getKongFu");
+        requestContext.append("http://").append(serviceInstance.getHost()).append(":").append(serviceInstance.getPort()).append("/"+remoteServiceID+"/getKongFu");
         System.out.println(" now you are consume " + requestContext.toString());
 
         RestTemplate restTemplate = new RestTemplate();
