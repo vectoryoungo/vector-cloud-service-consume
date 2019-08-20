@@ -16,9 +16,9 @@ public class Broadcaster {
     @Autowired
     private AmqpTemplate amqpTemplate;
 
-    @Value("${vrabbitmq.config.exchange}")
+    //@Value("${vrabbitmq.config.exchange}")
     private String exchange;
-    @Value("${vrabbitmq.config.queue.error.routing.key}")
+    //@Value("${vrabbitmq.config.queue.error.routing.key}")
     private String routingKey;
 
 

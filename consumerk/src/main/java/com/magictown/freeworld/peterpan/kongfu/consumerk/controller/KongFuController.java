@@ -7,6 +7,7 @@ package com.magictown.freeworld.peterpan.kongfu.consumerk.controller;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.message.Broadcaster;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.message.LogMessage;
 import com.magictown.freeworld.peterpan.kongfu.consumerk.service.HystrixService;
+import com.magictown.freeworld.peterpan.kongfu.consumerk.service.StreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
@@ -15,6 +16,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,6 +39,8 @@ public class KongFuController {
     private String zuulServiceID;
     @Value("${app.vector-cloud-service.serviceID}")
     private String remoteServiceID;
+    @Autowired
+    private StreamService streamService;
 
 
     @GetMapping(value = "/load")
@@ -127,6 +131,14 @@ public class KongFuController {
     public void sendFanout() {
         String message = "China President is Fucking Stupid Pig !!! China communist party is a group stupid pig ";
         broadcaster.sendWithFanout(message);
+    }
+
+    @PostMapping("/sendStreamMsg")
+    public String sendStreamMsg(String msg) {
+
+        streamService.sendMsg(msg);
+
+        return "success";
     }
 
 }
